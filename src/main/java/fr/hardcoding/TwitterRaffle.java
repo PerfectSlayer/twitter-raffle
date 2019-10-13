@@ -6,13 +6,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -20,53 +21,59 @@ import javax.ws.rs.core.MediaType;
 
 import twitter4j.Query;
 import twitter4j.QueryResult;
-import twitter4j.RateLimitStatus;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.User;
 
 @Path("/")
 public class TwitterRaffle {
+    private static final Logger LOGGER = Logger.getLogger(TwitterRaffle.class.getName());
     private static final int WINER_COUNT = 10;
     private Twitter twitter = new TwitterFactory().getInstance();
 
     @Path("/raffle")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Status> hello(@QueryParam("user") String screenName) {
-        return performRaffle(screenName);
+    public List<Winner> hello(@QueryParam("speaker") String speaker) {
+        return performRaffle(speaker);
     }
 
-    private List<Status> performRaffle(String screenName) {
+    private List<Winner> performRaffle(String screenName) {
         Map<String, List<Status>> userTweets;
         try {
             Query query = getQuery(screenName);
             userTweets = performQuery(query);
-        } catch (TwitterException e) {
-            // TODO LOG
+        } catch (TwitterException exception) {
+            LOGGER.log(Level.SEVERE, "Failed to query twitter.", exception);
             return Collections.emptyList();
         }
 
         Random rand = new Random(System.currentTimeMillis());
         List<String> users = new LinkedList<>(userTweets.keySet());
-        Set<String> winners = new HashSet<>();
+        Set<String> winningUsers = new HashSet<>();
 
-        while (winners.size() < Math.min(WINER_COUNT, userTweets.size())) {
+        while (winningUsers.size() < Math.min(WINER_COUNT, userTweets.size())) {
             String winner = users.remove(rand.nextInt(users.size()));
-            winners.add(winner);
+            winningUsers.add(winner);
         }
 
-        List<Status> winningTweets = winners.stream().map(userTweets::get).map(list -> list.get(0))
+        List<Winner> winners = winningUsers.stream()
+                .map(userTweets::get)
+                .map(list -> list.get(0))
+                .map(Winner::fromStatus)
                 .collect(Collectors.toList());
 
-        return winningTweets;
+        LOGGER.fine(winners.get(0).toString());
+
+        return winners;
     }
 
     private Query getQuery(String screenName) {
-        // Must mention ParisJUG plus a custom screenName, include a picture and must
-        // not be a RT
+        // - Must mention ParisJUG
+        // - Must mention the given screenName
+        // - Must include a picture and must
+        // - Must NOT be a RT
         String queryString = "@parisjug @" + screenName + " filter:media -filter:retweets";
         return new Query(queryString);
     }

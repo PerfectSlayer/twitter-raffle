@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>twitter-raffle - 1.0.0-SNAPSHOT</title>
+    <title>tParis JUG - Concours Twitter</title>
     <style>
         h1, h2, h3, h4, h5, h6 {
             margin-bottom: 0.5rem;
@@ -43,7 +43,7 @@
             font-size: 2.7rem;
             margin: 0;
             padding: 2rem 1rem;
-            background-color: #00A1E2;
+            background-color: rgb(226, 0, 38);
             color: white;
         }
 
@@ -63,6 +63,15 @@
             padding: .75rem;
             max-width: 75%;
             min-width: 55%;
+        }
+
+        .left-column.hidden {
+            display: none;
+        }
+
+        .left-column img {
+            display: block;
+            margin: 0px auto;
         }
 
         .right-column {
@@ -90,63 +99,50 @@
         }
 
         .right-section ul {
-            border-left: 0.3rem solid #00A1E2;
+            border-left: 0.3rem solid rgb(226, 0, 38);
             list-style-type: none;
             padding-left: 0;
         }
 
     </style>
+    <script type="text/javascript" src="raffle.js"></script>
 </head>
 <body>
 
 <div class="banner lead">
-    Your new Cloud-Native application is ready!
+    Concours Twitter
 </div>
 
 <div class="container">
-    <div class="left-column">
-        <p class="lead"> Congratulations, you have created a new Quarkus application.</p>
-
-        <h2>Why do you see this?</h2>
-
-        <p>This page is served by Quarkus. The source is in
-            <code>src/main/resources/META-INF/resources/index.html</code>.</p>
-
-        <h2>What can I do from here?</h2>
-
-        <p>If not already done, run the application in <em>dev mode</em> using: <code>mvn compile quarkus:dev</code>.
-        </p>
-        <ul>
-            <li>Add REST resources, Servlets, functions and other services in <code>src/main/java</code>.</li>
-            <li>Your static assets are located in <code>src/main/resources/META-INF/resources</code>.</li>
-            <li>Configure your application in <code>src/main/resources/application.properties</code>.
-            </li>
-        </ul>
-
-        <h2>How do I get rid of this page?</h2>
-        <p>Just delete the <code>src/main/resources/META-INF/resources/index.html</code> file.</p>
+    <div id="home" class="left-column">
+        <img src="https://www.parisjug.org/xwiki/wiki/oldversion/download/Main/MarketingMaterial/LogoBJCP20150500x0200.png" alt="Paris JUG logo" style="width: 100%; margin: 0px auto"/>
+    </div>
+    <div id="winner" class="left-column hidden">
+        <p class="lead">Félicitation aux gagnant(e)s ! 🎉</p>
+        <h2 id="winner-name"></h2>
+        <div id="tweet"></div>
+        <p><a href="#" onclick="showNextWinner()">Un(e) autre ?</a></p>
     </div>
     <div class="right-column">
         <div class="right-section">
-            <h3>Application</h3>
+            <h3>Pour gagner</h3>
+            <p>Un tweet avec :</p>
             <ul>
-                <li>GroupId: fr.hardcoding</li>
-                <li>ArtifactId: twitter-raffle</li>
-                <li>Version: 1.0.0-SNAPSHOT</li>
-                <li>Quarkus Version: 0.23.2</li>
+                <li>Une photo de la soirée,</li>
+                <li>La citation du <cite>@parisjug</cite>,</li>
+                <li>La citation d'un speaker de la soirée</li>
+                <li>Qui n'est pas un RT</li>
             </ul>
         </div>
         <div class="right-section">
-            <h3>Next steps</h3>
-            <ul>
-                <li><a href="https://quarkus.io/guides/maven-tooling.html" target="_blank">Setup your IDE</a></li>
-                <li><a href="https://quarkus.io/guides/getting-started-guide.html" target="_blank">Getting started</a></li>
-                <li><a href="https://quarkus.io" target="_blank">Quarkus Web Site</a></li>
-            </ul>
+            <h3>Tirer au sort</h3>
+            <form>
+                <label for="speaker">Nom du speaker: </label>
+                <input id="speaker" name="speaker" type="text"/>
+                <input type="button" value="Tirer" onclick="performRaffle()"/>
+            </form>
         </div>
     </div>
 </div>
-
-
 </body>
 </html>
