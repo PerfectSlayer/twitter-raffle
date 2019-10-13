@@ -1,6 +1,6 @@
-# Paris JUG Twitter raffle website
+# Paris JUG Twitter raffle website
 
-## Setup
+## Setup
 
 Add twitter credential in `src/main/resources/twitter4j.properties`:
 ```properties
@@ -10,7 +10,7 @@ oauth.accessToken=
 oauth.accessTokenSecret=
 ```
 
-## Run
+## Run
 
 ```bash
 ./mvn compile quarkus:dev
