@@ -136,13 +136,20 @@
         </div>
         <div class="right-section">
             <h3>Tirer au sort</h3>
-            <form>
+            <form id="form">
                 <label for="speaker">Nom du speaker: </label>
-                <input id="speaker" name="speaker" type="text"/>
-                <input type="button" value="Tirer" onclick="performRaffle()"/>
+                <input id="speaker" name="speaker" type="text" required/>
+                <button>Tirer</button>
             </form>
         </div>
     </div>
 </div>
+<script>
+    const form = document.getElementById('form');
+    form.addEventListener('submit', function(event) {
+        performRaffle();
+        event.preventDefault();
+    }, false);
+</script>
 </body>
 </html>
