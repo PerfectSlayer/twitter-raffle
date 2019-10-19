@@ -1,5 +1,5 @@
-var globalWinners = [];
-var globalCurrentWinner = -1;
+let globalWinners = [];
+let globalCurrentWinner = -1;
 
 function performRaffle() {
     const speaker = document.getElementById('speaker').value;
@@ -16,16 +16,16 @@ function showWinners(winners) {
 function showNextWinner() {
     globalCurrentWinner++;
     if (globalCurrentWinner >= globalWinners.length) {
-        // Pas d'autres gagnants
+        // No more winners
         showNoWinnerFound();
         return;
     }
     // Get next winner
     const winner = globalWinners[globalCurrentWinner];
     const tweetUrl = winner.tweetUrl;
-    // Request embeded tweet HTML code
+    // Request embedded tweet HTML code
     const url = "https://cors-anywhere.herokuapp.com/publish.twitter.com/oembed?url=" + encodeURI(tweetUrl);
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
     xhr.onload = function () {
@@ -37,7 +37,10 @@ function showNextWinner() {
             document.getElementById("winner").classList.remove("hidden");
             // Update winner panel
             document.getElementById('winner-name').innerHTML = winner.name + "(<cite>@" + winner.screenName + "</cite>)";
-            document.getElementById('tweet').innerHTML = xhr.response.html;
+            const tweetElement = document.getElementById('tweet');
+            tweetElement.innerHTML = xhr.response.html;
+            // Load widget
+            twttr.widgets.load(tweetElement);
         } else {
             console.log("Status: " + status);
         }
