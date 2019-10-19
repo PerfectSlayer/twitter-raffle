@@ -24,7 +24,7 @@ function showNextWinner() {
     const winner = globalWinners[globalCurrentWinner];
     const tweetUrl = winner.tweetUrl;
     // Request embedded tweet HTML code
-    const url = "https://cors-anywhere.herokuapp.com/publish.twitter.com/oembed?url=" + encodeURI(tweetUrl);
+    const url = "https://cors-anywhere.herokuapp.com/publish.twitter.com/oembed?url=" + encodeURI(tweetUrl) + "&omit_script=true";
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.responseType = 'json';
@@ -33,16 +33,16 @@ function showNextWinner() {
         if (status === 200) {
             console.log(xhr.response);
             // Ensure winner panel it shown
-            document.getElementById("home").classList.add("hidden");
-            document.getElementById("winner").classList.remove("hidden");
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('winner').classList.remove('hidden');
             // Update winner panel
-            document.getElementById('winner-name').innerHTML = winner.name + "(<cite>@" + winner.screenName + "</cite>)";
+            document.getElementById('winner-name').innerHTML = winner.name + '(<cite>@' + winner.screenName + '</cite>)';
             const tweetElement = document.getElementById('tweet');
             tweetElement.innerHTML = xhr.response.html;
             // Load widget
             twttr.widgets.load(tweetElement);
         } else {
-            console.log("Status: " + status);
+            console.log('Status: ' + status);
         }
     };
     xhr.send();
