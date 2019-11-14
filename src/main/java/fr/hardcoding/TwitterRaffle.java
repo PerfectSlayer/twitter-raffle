@@ -1,6 +1,5 @@
 package fr.hardcoding;
 
-
 import twitter4j.Query;
 import twitter4j.QueryResult;
 import twitter4j.RateLimitStatus;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,10 +49,10 @@ public class TwitterRaffle {
         }
     }
 
-    private List<Winner> performRaffle(String screenName) throws TwitterException {
-        Map<String, List<Status>> userTweets;
-        Query query = getQuery(screenName);
-        userTweets = performQuery(query);
+    private List<Winner> performRaffle(String speaker) throws TwitterException {
+        Query query = getQuery(speaker);
+        Predicate<Status> filter = getTweetFilter(speaker);
+        Map<String, List<Status>> userTweets = performQuery(query, filter);
 
         Random rand = new Random(System.currentTimeMillis());
         List<String> users = new LinkedList<>(userTweets.keySet());
@@ -70,16 +70,35 @@ public class TwitterRaffle {
                 .collect(Collectors.toList());
     }
 
-    private Query getQuery(String screenName) {
+    private Query getQuery(String speaker) {
         // - Must mention ParisJUG
-        // - Must mention the given screenName
+        // - Must mention the given speaker
         // - Must include a picture and must
         // - Must NOT be a RT
-        String queryString = "@parisjug @" + screenName + " filter:media -filter:retweets";
+        String queryString = "parisjug " + speaker + " filter:media -filter:retweets";
         return new Query(queryString);
     }
 
-    private Map<String, List<Status>> performQuery(Query query) throws TwitterException {
+    private Predicate<Status> getTweetFilter(String speaker) {
+        // Remove parisjug, given speaker, white spaces, twitter URL and check if remains few text
+        return status -> {
+            String text = status.getText();
+            String originalText = text;
+            text = text.replace("parisjug", "");
+            for (String part : speaker.split(" ")) {
+                text = text.replace(part, "");
+            }
+            text = text.replaceAll("https://t\\.co/[a-zA-Z0-9]+", "");
+            text = text.replaceAll("[ \n]", "");
+            if (text.length() <= 5) {
+                LOGGER.info("Filtering tweet: "+originalText);
+                return false;
+            }
+            return true;
+        };
+    }
+
+    private Map<String, List<Status>> performQuery(Query query, Predicate<Status> filter) throws TwitterException {
         // Map of found tweeds indexed by user screen names
         Map<String, List<Status>> userTweets = new HashMap<>();
         QueryResult result;
@@ -94,8 +113,10 @@ public class TwitterRaffle {
             ));
             List<Status> tweets = result.getTweets();
             for (Status tweet : tweets) {
-                String screenName = tweet.getUser().getScreenName();
-                userTweets.computeIfAbsent(screenName, __ -> new ArrayList<>()).add(tweet);
+                if (filter.test(tweet)) {
+                    String screenName = tweet.getUser().getScreenName();
+                    userTweets.computeIfAbsent(screenName, __ -> new ArrayList<>()).add(tweet);
+                }
             }
         } while ((query = result.nextQuery()) != null && userTweets.size() < MAX_RESULT);
         return userTweets;
