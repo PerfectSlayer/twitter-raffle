@@ -1,7 +1,9 @@
 package fr.hardcoding;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import twitter4j.Status;
 
+@RegisterForReflection
 public class Winner {
     public String name;
     public String screenName;
@@ -16,6 +18,6 @@ public class Winner {
     }
 
     public String toString() {
-        return this.name+" (@"+this.screenName+"): "+this.tweetUrl;
+        return this.name+" (@"+this.screenName+"): "+this.tweetUrl;
     }
 }
