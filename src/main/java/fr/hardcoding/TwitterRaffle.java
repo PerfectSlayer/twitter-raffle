@@ -1,26 +1,14 @@
 package fr.hardcoding;
 
-import twitter4j.Query;
-import twitter4j.QueryResult;
-import twitter4j.RateLimitStatus;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +22,47 @@ public class TwitterRaffle {
     private static final Logger LOGGER = Logger.getLogger(TwitterRaffle.class.getName());
     private static final int WINNER_COUNT = 10;
     private static final int MAX_RESULT = 100;
-    private Twitter twitter = new TwitterFactory().getInstance();
+    private final Twitter twitter;
+//    private static Twitter TWITTER;
+
+//    static {
+//        if (System.getenv("twitter4j_oauth_consumerKey") != null
+//                && System.getenv("twitter4j_oauth_consumerSecret") != null
+//                && System.getenv("twitter4j_oauth_accessToken") != null
+//                && System.getenv("twitter4j_oauth_accessTokenSecret") != null) {
+//
+//            ConfigurationBuilder cb = new ConfigurationBuilder();
+//            cb.setDebugEnabled(true)
+//                    .setOAuthConsumerKey(System.getenv("twitter4j_oauth_consumerKey"))
+//                    .setOAuthConsumerSecret(System.getenv("twitter4j_oauth_consumerSecret"))
+//                    .setOAuthAccessToken(System.getenv("twitter4j_oauth_accessToken"))
+//                    .setOAuthAccessTokenSecret(System.getenv("twitter4j_oauth_accessTokenSecret"));
+//            TwitterFactory tf = new TwitterFactory(cb.build());
+//
+//            TWITTER = tf.getInstance();
+//        } else {
+//            TWITTER = new TwitterFactory().getInstance();
+//        }
+//    }
+
+    public TwitterRaffle() {
+        if (System.getenv("twitter4j_oauth_consumerKey") != null
+                && System.getenv("twitter4j_oauth_consumerSecret") != null
+                && System.getenv("twitter4j_oauth_accessToken") != null
+                && System.getenv("twitter4j_oauth_accessTokenSecret") != null) {
+
+            ConfigurationBuilder cb = new ConfigurationBuilder();
+            cb.setOAuthConsumerKey(System.getenv("twitter4j_oauth_consumerKey"))
+                    .setOAuthConsumerSecret(System.getenv("twitter4j_oauth_consumerSecret"))
+                    .setOAuthAccessToken(System.getenv("twitter4j_oauth_accessToken"))
+                    .setOAuthAccessTokenSecret(System.getenv("twitter4j_oauth_accessTokenSecret"));
+            TwitterFactory tf = new TwitterFactory(cb.build());
+
+            twitter = tf.getInstance();
+        } else {
+            twitter = new TwitterFactory().getInstance();
+        }
+    }
 
     @Path("/raffle")
     @GET
@@ -91,7 +119,7 @@ public class TwitterRaffle {
             text = text.replaceAll("https://t\\.co/[a-zA-Z0-9]+", "");
             text = text.replaceAll("[ \n]", "");
             if (text.length() <= 5) {
-                LOGGER.info("Filtering tweet: "+originalText);
+                LOGGER.info("Filtering tweet: " + originalText);
                 return false;
             }
             return true;
@@ -103,7 +131,7 @@ public class TwitterRaffle {
         Map<String, List<Status>> userTweets = new HashMap<>();
         QueryResult result;
         do {
-            result = this.twitter.search(query);
+            result = twitter.search(query);
             RateLimitStatus limit = result.getRateLimitStatus();
             LOGGER.info(String.format(
                     "Rate Limit for Query: %s/%s. Reset in %s seconds",
