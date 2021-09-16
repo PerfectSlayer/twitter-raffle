@@ -1,51 +1,59 @@
-let globalWinners = [];
-let globalCurrentWinner = -1;
+let state = {
+    raffle: {
+        id: 0,
+        winners: []
+    },
+    winnerNumber: -1
+};
 
 function performRaffle() {
     const speaker = document.getElementById('speaker').value;
-    fetch("/raffle?speaker=" + speaker)
+    fetch("/api/raffle/", {
+        method: "POST",
+        body: JSON.stringify(speaker),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
         .then(response => response.json())
-        .then(winners => showWinners(winners));
+        .then(raffle => showWinners(raffle))
 }
 
-function showWinners(winners) {
-    globalWinners = winners;
+function showWinners(raffle) {
+    state.raffle = raffle;
+    state.winnerNumber = -1;
     showNextWinner();
 }
 
 function showNextWinner() {
-    globalCurrentWinner++;
-    if (globalCurrentWinner >= globalWinners.length) {
+    state.winnerNumber++;
+    if (state.winnerNumber >= state.raffle.winners.length) {
         // No more winners
         showNoWinnerFound();
         return;
     }
     // Get next winner
-    const winner = globalWinners[globalCurrentWinner];
-    const tweetUrl = winner.tweetUrl;
-    // Request embedded tweet HTML code
-    const url = "https://cors-anywhere.herokuapp.com/publish.twitter.com/oembed?url=" + encodeURI(tweetUrl) + "&omit_script=true";
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = function () {
-        var status = xhr.status;
-        if (status === 200) {
-            console.log(xhr.response);
-            // Ensure winner panel it shown
-            document.getElementById('home').classList.add('hidden');
-            document.getElementById('winner').classList.remove('hidden');
-            // Update winner panel
-            document.getElementById('winner-name').innerHTML = winner.name + '(<cite>@' + winner.screenName + '</cite>)';
-            const tweetElement = document.getElementById('tweet');
-            tweetElement.innerHTML = xhr.response.html;
-            // Load widget
-            twttr.widgets.load(tweetElement);
-        } else {
-            console.log('Status: ' + status);
-        }
-    };
-    xhr.send();
+    const winner = state.raffle.winners[state.winnerNumber];
+    // Get next winner tweet id
+    let id = winner.tweetUrl;
+    const lastIndexOf = id.lastIndexOf('/');
+    id = id.substr(lastIndexOf + 1);
+
+    // Ensure winner panel it shown
+    document.getElementById('home').classList.add('hidden');
+    document.getElementById('winner').classList.remove('hidden');
+    // Update winner panel
+    // document.getElementById('winner-name').innerHTML = winner.name + '(<cite>@' + winner.screenName + '</cite>)';
+    const tweetElement = document.getElementById('tweet');
+    while (tweetElement.firstChild) {
+        tweetElement.removeChild(tweetElement.firstChild);
+    }
+    twttr.widgets.createTweet(id, tweetElement, {
+        conversation: "none",
+        align: "center",
+        lang: "fr",
+        dnt: true
+    });
 }
 
 function showNoWinnerFound() {
