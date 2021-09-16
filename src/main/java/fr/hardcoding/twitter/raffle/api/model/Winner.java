@@ -12,13 +12,13 @@ import twitter4j.Status;
 public class Winner {
     public String name;
     public String screenName;
-    public long tweetId;
+    public String tweetId;
 
     public static Winner fromStatus(Status status) {
         Winner winner = new Winner();
         winner.name = status.getUser().getName();
         winner.screenName = status.getUser().getScreenName();
-        winner.tweetId = status.getId();
+        winner.tweetId = Long.toString(status.getId());
         return winner;
     }
 
