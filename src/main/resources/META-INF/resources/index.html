@@ -2,134 +2,46 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Paris JUG - Concours Twitter</title>
     <link rel="icon" type="image/png" href="/favicon.png"/>
-    <style>
-        h1, h2, h3, h4, h5, h6 {
-            margin-bottom: 0.5rem;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-        }
-
-        h2 {
-            font-size: 2rem
-        }
-
-        h3 {
-            font-size: 1.75rem
-        }
-
-        h4 {
-            font-size: 1.5rem
-        }
-
-        h5 {
-            font-size: 1.25rem
-        }
-
-        h6 {
-            font-size: 1rem
-        }
-
-        .lead {
-            font-weight: 300;
-            font-size: 2rem;
-        }
-
-        .banner {
-            font-size: 2.7rem;
-            margin: 0;
-            padding: 2rem 1rem;
-            background-color: rgb(226, 0, 38);
-            color: white;
-        }
-
-        body {
-            margin: 0;
-            font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        }
-
-        code {
-            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 87.5%;
-            color: #e83e8c;
-            word-break: break-word;
-        }
-
-        .left-column {
-            padding: .75rem;
-            max-width: 75%;
-            min-width: 55%;
-        }
-
-        .left-column.hidden {
-            display: none;
-        }
-
-        .left-column img {
-            display: block;
-            margin: 0px auto;
-        }
-
-        .right-column {
-            padding: .75rem;
-            max-width: 25%;
-        }
-
-        .container {
-            display: flex;
-            width: 100%;
-        }
-
-        li {
-            margin: 0.75rem;
-        }
-
-        .right-section {
-            margin-left: 1rem;
-            padding-left: 0.5rem;
-        }
-
-        .right-section h3 {
-            padding-top: 0;
-            font-weight: 200;
-        }
-
-        .right-section ul {
-            border-left: 0.3rem solid rgb(226, 0, 38);
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-    </style>
-    <script type="text/javascript" src="raffle.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+            crossorigin="anonymous"></script>
     <script id="twitter-wjs" type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
+    <script type="text/javascript" src="raffle.js"></script>
 </head>
 <body>
 
-<div class="banner lead">
-    Concours Twitter
+<div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom" style="background: rgb(226, 0, 38)">
+        <div class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <img src="favicon.png" alt="Winner" class="bi mx-2" width="40" height="40">
+            <span class="fs-4" style="color: whitesmoke">Concours Twitter</span>
+        </div>
+    </header>
 </div>
 
 <div class="container">
-    <div id="home" class="left-column">
-        <img src="https://www.parisjug.org/xwiki/wiki/oldversion/download/Main/MarketingMaterial/LogoBJCP20150500x0200.png"
-             alt="Paris JUG logo" style="width: 100%; margin: 0 auto"/>
+    <h2 class="pb-2 border-bottom">Les lots à gagner 🎁</h2>
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+        <div class="feature col">
+            <div class="d-flex justify-content-center">
+                <img src="images/jetbrains.svg" alt="Jetbrains" width="30%"/>
+                <img src="images/icon-intellij-idea.svg" alt="IntelliJ IDEA" width="30%"/>
+            </div>
+            <h2>3 licences IntelliJ</h2>
+            <p>Bons à activer sur n'importe lequel des produits JetBrains (dont IDEA) valable pour une durée d'un an
+                !</p>
+        </div>
     </div>
-    <div id="winner" class="left-column hidden">
-        <p class="lead">F&eacute;licitations aux gagnant(e)s ! &#x1F389;</p>
-        <h2 id="winner-name"></h2>
-        <div id="tweet"></div>
-        <p><a href="#" onclick="showNextWinner()">&#x23ED; Un(e) autre ?</a></p>
-    </div>
-    <div class="right-column">
-        <div class="right-section">
-            <h3>Pour gagner</h3>
-            <p>Un tweet avec :</p>
+
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+        <div class="col">
+            <h2 class="pb-2 border-bottom">Comment Participer ?</h2>
+            <p>Envoyez un tweet avec :</p>
             <ul>
                 <li>Une photo de la soir&eacute;e,</li>
                 <li>La citation du <cite>parisjug</cite>,</li>
@@ -137,16 +49,32 @@
                 <li>Qui n'est pas un RT.</li>
             </ul>
         </div>
-        <div class="right-section">
-            <h3>Tirer au sort</h3>
+        <div class="col">
+            <h2 class="pb-2 border-bottom">Tirer au sort !</h2>
             <form id="form">
-                <label for="speaker">Nom des speakers: </label>
-                <input id="speaker" name="speaker" type="text" required/>
-                <button type="submit">Tirer</button>
+                <div class="mb-3">
+                    <label for="speaker" class="form-label">Nom des speakers</label>
+                    <input type="text" class="form-control" id="speaker" name="speaker" aria-describedby="speakerHelp">
+                    <div id="speakerHelp" class="form-text">La liste de leurs <cite>Twitter handles</cite>.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Tirer les gagnant(e)s</button>
             </form>
         </div>
     </div>
 </div>
+
+<div id="winner" class="container d-none">
+    <h2 class="pb-2 border-bottom">F&eacute;licitations aux gagnant(e)s ! &#x1F389;</h2>
+    <div id="tweet"></div>
+    <div class=" d-flex justify-content-center">
+        <button type="button" class="btn btn-light" id="nextWinnerButton" onclick="showNextWinner()">&#x23ED; Un(e)
+            autre ?
+        </button>
+        <button type="button" class="btn btn-light d-none" id="noMoreWinner" disabled>&#x23F9; Pas d'autre gagnant(e)
+        </button>
+    </div>
+</div>
+
 <script>
     const form = document.getElementById('form');
     form.addEventListener('submit', function (event) {

@@ -27,35 +27,42 @@ function showWinners(raffle) {
 
 function showNextWinner() {
     state.winnerNumber++;
-    if (state.winnerNumber >= state.raffle.winners.length) {
-        // No more winners
-        showNoWinnerFound();
-        return;
+    if (state.winnerNumber < state.raffle.winners.length -1) {
+        showNextWinnerButton();
+    } else {
+        showNoMoreWinnerButton();
+        if (state.winnerNumber < state.raffle.winners) {
+            return;
+        }
     }
     // Get next winner
     const winner = state.raffle.winners[state.winnerNumber];
-    // Get next winner tweet id
-    let id = winner.tweetUrl;
-    const lastIndexOf = id.lastIndexOf('/');
-    id = id.substr(lastIndexOf + 1);
-
-    // Ensure winner panel it shown
-    document.getElementById('home').classList.add('hidden');
-    document.getElementById('winner').classList.remove('hidden');
-    // Update winner panel
-    // document.getElementById('winner-name').innerHTML = winner.name + '(<cite>@' + winner.screenName + '</cite>)';
+    // Ensure winner container is shown
+    document.getElementById('winner').classList.remove('d-none');
+    // Remove previous tweet
     const tweetElement = document.getElementById('tweet');
     while (tweetElement.firstChild) {
         tweetElement.removeChild(tweetElement.firstChild);
     }
-    twttr.widgets.createTweet(id, tweetElement, {
+    // Load winner tweet
+    twttr.widgets.createTweet(winner.tweetId, tweetElement, {
         conversation: "none",
         align: "center",
         lang: "fr",
         dnt: true
-    });
+    }).then(() => scrollToBottom());
 }
 
-function showNoWinnerFound() {
+function showNextWinnerButton() {
+    document.getElementById('nextWinnerButton').classList.remove('d-none');
+    document.getElementById('noMoreWinner').classList.add('d-none');
+}
 
+function showNoMoreWinnerButton() {
+    document.getElementById('nextWinnerButton').classList.add('d-none');
+    document.getElementById('noMoreWinner').classList.remove('d-none');
+}
+
+function scrollToBottom() {
+    window.scrollTo(0, document.body.scrollHeight);
 }
