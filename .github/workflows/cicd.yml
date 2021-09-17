@@ -1,0 +1,108 @@
+name: Deployment
+
+on:
+  push:
+    branches: [ production ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: maven
+        
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml
+        
+    - name: Install OCI CLI
+      run: |
+        curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+        chmod +x install.sh
+        ./install.sh --accept-all-defaults
+        echo "/home/runner/bin" >> $GITHUB_PATH
+        exec -l $SHELL
+      
+    - name: Write OCI configuration
+      env:
+        OCI_KEY_FILE: ${{secrets.OCI_KEY_FILE}}
+        OCI_FINGERPRINT: ${{ secrets.OCI_FINGERPRINT }}
+        OCI_REGION: ${{ secrets.OCI_REGION }}
+        OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+        OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+      run: |
+        mkdir ~/.oci
+        echo "[DEFAULT]" >> ~/.oci/config
+        echo "user=${OCI_USER_OCID}" >> ~/.oci/config
+        echo "fingerprint=${OCI_FINGERPRINT}" >> ~/.oci/config
+        echo "region=${OCI_REGION}" >> ~/.oci/config
+        echo "tenancy=${OCI_TENANCY_OCID}" >> ~/.oci/config
+        echo "key_file=~/.oci/key.pem" >> ~/.oci/config
+        echo "${OCI_KEY_FILE}" >> ~/.oci/key.pem
+        oci setup repair-file-permissions --file /home/runner/.oci/config
+        oci setup repair-file-permissions --file /home/runner/.oci/key.pem
+        
+    - name: Check VM instance
+      env:
+        VM_COMPARTMENT_OCID: ${{ secrets.VM_COMPARTMENT_OCID }}
+        VM_DISPLAY_NAME: ${{ secrets.VM_DISPLAY_NAME }}
+      run: |
+        echo "INSTANCE_OCID=$( \
+          oci compute instance list \
+          --lifecycle-state RUNNING \
+          --compartment-id ${VM_COMPARTMENT_OCID} \
+          --display-name $VM_DISPLAY_NAME \
+          --query "data [0].id" \
+          --raw-output \
+        )" >> $GITHUB_ENV
+        
+    - name: Get VM instance IP address
+      run: |
+        echo "INSTANCE_IP=$( \
+          oci compute instance list-vnics \
+          --instance-id $INSTANCE_OCID \
+          --query 'data [0]."public-ip"' \
+          --raw-output \
+        )" >> $GITHUB_ENV
+       
+    - name: Stop Quarkus application
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.INSTANCE_IP }}
+        username: opc
+        key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+        script: |
+          pid=`ps ux | grep "twitter-raffle" | grep -v "grep" | awk '{print $2}'`
+          if [ "$pid" == "" ]; then
+            echo "Process not found"
+          else
+            kill -9 $pid
+          fi
+
+    - name: Push Quarkus application
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ env.INSTANCE_IP }}
+        username: opc
+        key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+        source: "target/quarkus-app/*"
+        target: "/home/opc/twitter-raffle"
+        strip_components: 2
+
+    - name: Start Quarkus application
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ env.INSTANCE_IP }}
+        username: opc
+        key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+        script: |
+          mv ~/twitter-raffle/quarkus-run.jar ~/twitter-raffle/twitter-raffle-run.jar
+          nohup java -jar ~/twitter-raffle/twitter-raffle-run.jar > twitter-raffle.$(date --iso).log 2>&1 &
