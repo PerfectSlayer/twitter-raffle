@@ -28,7 +28,7 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.SERVICE_UNAVAILABLE;
 
 /**
- * This API provides the Twitter raffle service.
+ * This API provides the Twitter raffle resource.
  *
  * @author Bruce BUJON (bruce.bujon(at)gmail(dot)com)
  */

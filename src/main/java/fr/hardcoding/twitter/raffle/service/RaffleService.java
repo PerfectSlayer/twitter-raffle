@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.min;
 
+/**
+ * This service perform the Twitter raffle.
+ *
+ * @author Bruce BUJON (bruce.bujon(at)gmail(dot)com)
+ */
 @Singleton
 public class RaffleService {
     // Twitter4j configuration
@@ -34,8 +39,8 @@ public class RaffleService {
     private static final String TWITTER4J_OAUTH_ACCESS_TOKEN = "twitter4j_oauth_accessToken";
     private static final String TWITTER4J_OAUTH_ACCESS_TOKEN_SECRET = "twitter4j_oauth_accessTokenSecret";
     // Raffle configuration
-    private static final int WINNER_COUNT = 10;
-    private static final int MAX_RESULT = 100;
+    protected static final int WINNER_COUNT = 10;
+    protected static final int MAX_RESULT = 100;
     // Twitter client
     private final Twitter twitter;
 
@@ -106,7 +111,7 @@ public class RaffleService {
                 .collect(Collectors.toList());
     }
 
-    private Query getQuery(String speaker) {
+    protected Query getQuery(String speaker) {
         // - Must mention ParisJUG
         // - Must mention the given speaker
         // - Must include a picture and must
@@ -115,7 +120,7 @@ public class RaffleService {
         return new Query(queryString);
     }
 
-    private Predicate<Status> getTweetFilter(String speaker) {
+    protected Predicate<Status> getTweetFilter(String speaker) {
         // Remove parisjug, given speaker, white spaces, twitter URL and check if remains few text
         return status -> {
             String text = status.getText();
@@ -134,12 +139,12 @@ public class RaffleService {
         };
     }
 
-    private Map<String, List<Status>> performQuery(Query query, Predicate<Status> filter) throws TwitterException {
+    protected Map<String, List<Status>> performQuery(Query query, Predicate<Status> filter) throws TwitterException {
         // Map of found tweeds indexed by user screen names
         Map<String, List<Status>> userTweets = new HashMap<>();
         QueryResult result;
         do {
-            result = twitter.search(query);
+            result = this.twitter.search(query);
             RateLimitStatus limit = result.getRateLimitStatus();
             LOGGER.info(String.format(
                     "Rate Limit for Query: %s/%s. Reset in %s seconds",
