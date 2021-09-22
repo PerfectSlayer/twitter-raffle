@@ -1,6 +1,10 @@
 # Paris JUG Twitter raffle website
 
-This website is the Twitter raffle to gift our sponsor prizes.
+This project defines the Twitter raffle website to gift our sponsor prizes.
+
+Support and bug request are welcome on [GitHub issues](https://github.com/PerfectSlayer/twitter-raffle/issues).
+
+## Bug report
 
 <img src="resources/home.png" raw="true" alt="homepage">
 <img src="resources/winner.png" raw="true" alt="showing a winner">
