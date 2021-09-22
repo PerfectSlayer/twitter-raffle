@@ -86,7 +86,7 @@ public class RaffleApi {
     public Response getRaffle(@PathParam("raffleId") String raffleId) {
         Raffle raffle = this.raffles.get(raffleId);
         if (raffle == null) {
-            LOGGER.log(WARNING, "Failed to find raffle {}.", raffleId);
+            LOGGER.log(WARNING, "Failed to find raffle {0}.", raffleId);
             return Response.status(NOT_FOUND).build();
         }
         return Response.ok(raffle).build();
