@@ -13,6 +13,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.min;
+import static java.util.function.Predicate.not;
 
 /**
  * This service perform the Twitter raffle.
@@ -89,8 +91,11 @@ public class RaffleService {
      */
     public List<Winner> performRaffle(String speaker) throws TwitterException {
         Query query = getQuery(speaker);
-        Predicate<Status> filter = getTweetFilter(speaker);
+        Predicate<Status> filter = getTweetFilter(speaker).and(not(this::isTweetAccountExcluded));
         Map<String, List<Status>> userTweets = performQuery(query, filter);
+        if (userTweets.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         Random rand = new Random(System.currentTimeMillis());
         List<String> users = new LinkedList<>(userTweets.keySet());
@@ -98,9 +103,6 @@ public class RaffleService {
 
         while (winningUsers.size() < min(WINNER_COUNT, userTweets.size())) {
             String winner = users.remove(rand.nextInt(users.size()));
-            if (this.excludedAccounts.contains(winner)) {
-                continue;
-            }
             winningUsers.add(winner);
         }
 
@@ -137,6 +139,10 @@ public class RaffleService {
             }
             return true;
         };
+    }
+
+    protected boolean isTweetAccountExcluded(Status status) {
+        return this.excludedAccounts.contains(status.getUser().getScreenName());
     }
 
     protected Map<String, List<Status>> performQuery(Query query, Predicate<Status> filter) throws TwitterException {
