@@ -105,4 +105,5 @@ jobs:
         key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         script: |
           mv ~/twitter-raffle/quarkus-run.jar ~/twitter-raffle/twitter-raffle-run.jar
+          source ~/env.sh
           nohup java -jar ~/twitter-raffle/twitter-raffle-run.jar > twitter-raffle.$(date --iso).log 2>&1 &
